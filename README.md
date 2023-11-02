@@ -1,7 +1,7 @@
 # sitemap-analyzer
 
 ## How to use
-Go to releases and download the latest .ZIP file. Unzip it and edit the file `application.properties` the properties as required. Save and then execute (double click) the executable (.exe) file.
+Go to [Releases](https://github.com/JoaoPMoutinhoAlves/sitemap-analyzer/releases) and download the latest .ZIP file. Unzip it and edit the file `application.properties` the properties as required. Save and then execute (double click) the executable (.exe) file.
 
 ## Properties definitions
 - `sitemap.url`: URL of the sitemap to analyze. It must be a valid URL.
