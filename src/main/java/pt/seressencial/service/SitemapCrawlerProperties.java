@@ -21,7 +21,7 @@ public class SitemapCrawlerProperties {
     String pagespeedStrategy;
 
     public SitemapCrawlerProperties read() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(new File("").getAbsolutePath() + "\\target\\application.properties", StandardCharsets.UTF_8));
+        BufferedReader reader = new BufferedReader(new FileReader(new File("").getAbsolutePath() + "\\application.properties", StandardCharsets.UTF_8));
         while(reader.ready()) {
             String line = reader.readLine();
             if(line.startsWith("sitemap.url=")) {
