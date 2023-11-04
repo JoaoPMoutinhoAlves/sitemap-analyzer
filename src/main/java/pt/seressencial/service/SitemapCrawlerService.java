@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -48,7 +50,7 @@ public class SitemapCrawlerService implements QuarkusApplication {
         return 0;
     }
 
-    private void analyzeSitemap() throws UnknownFormatException, IOException, URISyntaxException {
+    private void analyzeSitemap() throws UnknownFormatException, IOException, URISyntaxException, ExecutionException, InterruptedException {
         this.properties = new SitemapCrawlerProperties().read();
         SiteMap sitemap = downloadSitemap();
         List<URL> sitemapUrls = getSiteMapUrls(sitemap);
@@ -69,20 +71,27 @@ public class SitemapCrawlerService implements QuarkusApplication {
         return crawlingGatewayService.getSitemap(properties.getSitemapUrl());
     }
 
-    private List<PagespeedApiPagespeedResponseV5> getPagespeedResults(List<URL> sitemapUrls) {
+    private List<PagespeedApiPagespeedResponseV5> getPagespeedResults(List<URL> sitemapUrls) throws ExecutionException, InterruptedException {
         int size = sitemapUrls.size();
-        return sitemapUrls.parallelStream()
+        //noinspection resource
+        ForkJoinPool pool = new ForkJoinPool(getMaxAvailableThreads());
+        log.info("Using {} threads to analyze URLs", getMaxAvailableThreads());
+        return pool.submit(() -> sitemapUrls.parallelStream()
                 .map(url -> {
                     PagespeedApiPagespeedResponseV5 response = pagespeedGatewayService.runPageSpeed(url.toString(), properties);
-                    log.info("Downloaded {} of {} urls", counter.incrementAndGet(), size);
+                    log.info("Analyzed {} of {} URLs", counter.incrementAndGet(), size);
                     return response;
                 })
-                .toList();
+                .toList()).get();
     }
 
     private void writeResults(List<PagespeedApiPagespeedResponseV5> results) throws IOException {
         results = results.stream().sorted((o1, o2) -> Float.compare(Float.parseFloat(o1.getLighthouseResult().getCategories().getPerformance().getScore().toString()), Float.parseFloat(o2.getLighthouseResult().getCategories().getPerformance().getScore().toString()))).toList();
         pagespeedResultWriter.write(results, properties.getOutputDirectory());
+    }
+
+    private int getMaxAvailableThreads() {
+        return Math.min(properties.getMaxThreads(), Runtime.getRuntime().availableProcessors());
     }
 
 }

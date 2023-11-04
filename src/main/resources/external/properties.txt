@@ -1,0 +1,7 @@
+sitemap.url=https://www.casadaromaterapia.pt/sitemap_products_1.xml?from=7529068167398&to=8595943883100
+sitemap.url.extension=
+pagespeed.categories=PERFORMANCE,ACCESSIBILITY,BEST_PRACTICES,SEO,PWA
+pagespeed.strategy=MOBILE
+google.api.key=AIzaSyAcY5krtqSipu3i7ecbPQkM-O9rbyGCbVU
+output.directory=C:\PerformanceResults
+threads.max=12
